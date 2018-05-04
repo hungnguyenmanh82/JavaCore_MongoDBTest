@@ -1,4 +1,9 @@
 eclipse.preferences.version=1
 encoding//src/main/java/hung/com/test/CRUD/find/App4_findRawQueryBson.java=UTF-8
+encoding//src/main/java/hung/com/test/aggregateFunction/App8_Groupby.java=UTF-8
+encoding//src/main/java/hung/com/test/aggregateFunction/App8_Project.java=UTF-8
+encoding//src/main/java/hung/com/test/aggregateFunction/App8_SUM.java=UTF-8
+encoding//src/main/java/hung/com/test/date/App9_date.java=UTF-8
 encoding//src/main/java/hung/com/test/index/App7_index.java=UTF-8
 encoding//src/main/java/hung/com/test/index/App7_indexBson.java=UTF-8
+encoding//src/main/java/hung/com/test/index/App7_indexUniqueBson.java=UTF-8

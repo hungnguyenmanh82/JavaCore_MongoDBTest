@@ -32,7 +32,7 @@ import com.mongodb.util.JSON;
 		>db.mycol.creatIndex ({"title":1,"description":-1})
 
  */
-public class App7_indexBson {
+public class App7_indexUniqueBson {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;

@@ -75,7 +75,7 @@ public class App4_processDocument {
 				doc = (Document)it.next();
 				System.out.println(doc);
 				//
-				int likes = doc.getInteger("likes");
+				int likes = doc.getInteger("likes");  // "likes" is a key in json
 				System.out.println("likes="+ likes);
 				//
 				String title = doc.getString("title");

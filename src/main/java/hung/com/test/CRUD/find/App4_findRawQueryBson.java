@@ -10,6 +10,7 @@ import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -67,12 +68,13 @@ public class App4_findRawQueryBson {
 			   }
 			 */
 			
-			
+			// $or: operator OR
+			// $eq: equals
 			String json = "{\"$or\": [ {\"title\": \"MongoDB\"}, {\"likes\": {\"$eq\": 110 }} ] }";
-			DBObject bson = ( DBObject ) JSON.parse( json );
+			Bson bson =  BasicDBObject.parse( json );
 
 			//các lệnh index, update đều làm tương tự dùng Bson
-			FindIterable<Document> iterDoc = collection.find((Bson)bson);
+			FindIterable<Document> iterDoc = collection.find(bson);
 
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 

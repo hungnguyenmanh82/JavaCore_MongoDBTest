@@ -1,4 +1,4 @@
-package hung.com.test.CRUD.update;
+package hung.com.test.CRUD.insert;
 
 
 import java.util.Arrays;
@@ -6,9 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -17,8 +15,6 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -27,11 +23,17 @@ import com.mongodb.event.ServerOpeningEvent;
 /**
  * create an MongoDB user with root:
  * 
-		use Mydb
-		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
-
+	{
+		"_id":"5aeadf6432ff4031fcc89550",
+		"title":"MongoDB",
+		"id":1,
+		"description":"database",
+		"likes":120,
+		"url":"http://www.tutorialspoint.com/mongodb/",
+		"by":"tutorials point"
+	}
  */
-public class App5_replaceDocumentBson {
+public class App3_insertDocument {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -52,43 +54,17 @@ public class App5_replaceDocumentBson {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
+			//cách này cho performance tốt hơn là dùng Json
+			Document document = new Document("title", "MongoDB") 
+					.append("id", 1)
+					.append("description", "database") 
+					.append("likes", 100) 
+					.append("url", "http://www.tutorialspoint.com/mongodb/") 
+					.append("by", "tutorials point");  
+			collection.insertOne(document); 
 			
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			// $or: operator OR
-			// $eq: equals
-			// $lt: less than
-			
-			String queryJson = "{id:1}";
-			//
-			//$unset: remove field from Json
-			String updateJson = "{" +
-									"\"title\":\"Oracle\", "+
-									"\"id\":88,"+
-//									"\"description\":\"database\","+
-									"\"likes\":777,"+
-//									"\"url\":\"http://www.tuvi.com\","+
-									"\"by\":\"Master\""+
-									"}";
-			
-			Bson queryBson = BasicDBObject.parse(queryJson);
-			Document replaceDoc = Document.parse(updateJson);
-			
-			collection.replaceOne(queryBson,replaceDoc);
-
-			System.out.println("Document update successfully...");  
-
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {

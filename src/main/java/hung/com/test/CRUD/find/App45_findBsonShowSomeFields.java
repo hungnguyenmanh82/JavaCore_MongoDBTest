@@ -34,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App4_findRawQueryBson {
+public class App45_findBsonShowSomeFields {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -71,11 +71,15 @@ public class App4_findRawQueryBson {
 			
 			// $or: operator OR
 			// $eq: equals
-			String json = "{\"$or\": [ {\"title\": \"MongoDB\"}, {\"likes\": {\"$eq\": 110 }} ] }";
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+			String json = "{$or: [ {title: 'MongoDB'}, {likes: {$eq: 110 }} ] }";
 			Bson bson =  BasicDBObject.parse( json );
-
-			//các lệnh index, update đều làm tương tự dùng Bson
-			FindIterable<Document> iterDoc = collection.find(bson);
+			//
+			String jsonShow = "{_id:0,title:1, likes:1}";
+			Bson bsonShow =  BasicDBObject.parse( jsonShow );
+			
+			//xem $project
+			FindIterable<Document> iterDoc = collection.find(bson).projection(bsonShow);
 
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 

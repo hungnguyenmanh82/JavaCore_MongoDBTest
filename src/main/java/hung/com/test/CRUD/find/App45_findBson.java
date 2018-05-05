@@ -1,7 +1,6 @@
-package hung.com.test.aggregateFunction;
+package hung.com.test.CRUD.find;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,6 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -36,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App8_SUM {
+public class App45_findBson {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -57,6 +55,7 @@ public class App8_SUM {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			/**
 			   {
@@ -70,27 +69,17 @@ public class App8_SUM {
 			   }
 			 */
 			
-			//_id là trường bắt buộc để nhóm Group. _id = null nghĩa là tất cả 
-			// num_tutorial: là tên đại diện hiển thị ứng với Alias trong SQL
-			// $sum:  các toán tử function đếu kết thúc với dấu “:” và bắt đầu với $ => tuân theo Json
-			// $by_user  là field name trong Json Document. Cùng tên đc nhóm vào 1 Group  
-			// {$sum: 1} chính là hàm count mỗi lần +1 vào
-			// {$sum: “$money”}  tìm các field money và cộng lại với nhau.
-			//chú ý cú pháp đều tuân thủ Json rất chặt chẽ mặc dù có các function của MongoDB
-
-
-//			String json = "{$group:{_id:null, \"total likes\":{$sum:\"$likes\"}}}";
-//			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}}}";
-			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}, \"total id\":{$sum:\"$id\"} }}";
+			// $or: operator OR
+			// $eq: equals
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+			String json = "{$or: [ {title: 'MongoDB'}, {likes: {$eq: 110 }} ] }";
 			Bson bson =  BasicDBObject.parse( json );
 
-			List<Bson> listBson = new ArrayList<Bson>();
-			listBson.add(bson);
 			
-			AggregateIterable<Document> output  = collection.aggregate(listBson);
+			FindIterable<Document> iterDoc = collection.find(bson);
 
 			// Getting the iterator 
-			Iterator it = output.iterator(); 
+			Iterator it = iterDoc.iterator(); 
 			Document doc;
 			while (it.hasNext()) { 
 				doc = (Document)it.next();

@@ -64,7 +64,7 @@ public class App7_indexBson {
 			     by=tutorials point
 			   }
 			 */
-			//dùng Bson tiện hơn
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			String json = "{\"likes\":1}";
 			//1: ascending
 			//-1: descending

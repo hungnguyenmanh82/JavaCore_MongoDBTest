@@ -1,4 +1,4 @@
-package hung.com.test.CRUD.update;
+package hung.com.test.CRUD.find;
 
 
 import java.util.Arrays;
@@ -8,7 +8,6 @@ import java.util.List;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -18,7 +17,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -31,7 +29,7 @@ import com.mongodb.event.ServerOpeningEvent;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App5_replaceDocumentBson {
+public class App4_findShowSomeFields {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -50,10 +48,10 @@ public class App5_replaceDocumentBson {
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
-
-			//====================================================================
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			
+			//====================================================================
+			//create new collection if not find
+			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			/**
 			   {
 			     _id=5aeadf6432ff4031fcc89550, 
@@ -65,30 +63,24 @@ public class App5_replaceDocumentBson {
 			     by=tutorials point
 			   }
 			 */
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			// $or: operator OR
-			// $eq: equals
-			// $lt: less than
+			//Filters.eq() = equal()
+			//Filters.lt() = less than
+			FindIterable<Document> iterDoc = collection.find();
 			
-			String queryJson = "{id:1}";
-			//
-			//$unset: remove field from Json
-			String updateJson = "{" +
-									"\"title\":\"Oracle\", "+
-									"\"id\":88,"+
-//									"\"description\":\"database\","+
-									"\"likes\":777,"+
-//									"\"url\":\"http://www.tuvi.com\","+
-									"\"by\":\"Master\""+
-									"}";
-			
-			Bson queryBson = BasicDBObject.parse(queryJson);
-			Document replaceDoc = Document.parse(updateJson);
-			
-			collection.replaceOne(queryBson,replaceDoc);
+			Bson bson = Filters.eq("likes", 150);
+//			FindIterable<Document> iterDoc = collection.find(bson);
 
-			System.out.println("Document update successfully...");  
 
+			// Getting the iterator 
+			Iterator it = iterDoc.iterator(); 
+			Document doc;
+			while (it.hasNext()) { 
+				doc = (Document)it.next();
+				System.out.println(doc);
+
+				
+			}
+			
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {
@@ -103,17 +95,17 @@ public class App5_replaceDocumentBson {
 	private static ServerListener serverListener = new ServerListener() {
 
 		public void serverOpening(ServerOpeningEvent event) {
-			//			System.out.println("*****************"+ event);
+//			System.out.println("*****************"+ event);
 
 		}
 
 		public void serverDescriptionChanged(ServerDescriptionChangedEvent event) {
-			//			System.out.println("++++++"+ event);
+//			System.out.println("++++++"+ event);
 
 		}
 
 		public void serverClosed(ServerClosedEvent event) {
-			//			System.out.println("----------------"+ event);
+//			System.out.println("----------------"+ event);
 		}
 	};
 

@@ -1,14 +1,17 @@
-package hung.com.test.CRUD.update;
+package hung.com.test.CRUD.find;
 
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -18,11 +21,11 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
 import com.mongodb.event.ServerOpeningEvent;
+import com.mongodb.util.JSON;
 
 /**
  * create an MongoDB user with root:
@@ -31,7 +34,7 @@ import com.mongodb.event.ServerOpeningEvent;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App5_replaceDocumentBson {
+public class App46_findBson_FieldExist {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -50,45 +53,41 @@ public class App5_replaceDocumentBson {
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
-
-			//====================================================================
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+			//====================================================================
+			//create new collection if not find
+			MongoCollection<Document> collection = database.getCollection("sampleColChildField");
+			
+			collection.insertMany(Arrays.asList(
+			        Document.parse("{ item: 'journal', qty: 25, size: { h: 14, w: 21, uom: 'cm' }, status: 'A' }"),
+			        Document.parse("{ item: 'notebook', qty: 50, size: { h: 8.5, w: 11, aaa: 'in' }, status: 'A' }"),
+			        Document.parse("{ item: 'paper', qty: 100, size: { h: 8.5, w: 11, uom: 'in' }, status: 'D' }"),
+			        Document.parse("{ item: 'planner', qty: 75, size: { h: 22.85, w: 30, bbb: 'cm' }, status: 'D' }"),
+			        Document.parse("{ item: 'postcard', qty: 45, size: { h: 10, w: 15.25, uom: 'cm' }, status: 'A' }")
+			));
+			
 			// $or: operator OR
 			// $eq: equals
-			// $lt: less than
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+//			String json = "{size: {$eq: { h: 14, w: 21, uom: 'cm' } } }";
+//			String json = "{qty:25}";
+//			String json = "{item:'paper'}";
+//			String json = "{'size.h':14}";
 			
-			String queryJson = "{id:1}";
-			//
-			//$unset: remove field from Json
-			String updateJson = "{" +
-									"\"title\":\"Oracle\", "+
-									"\"id\":88,"+
-//									"\"description\":\"database\","+
-									"\"likes\":777,"+
-//									"\"url\":\"http://www.tuvi.com\","+
-									"\"by\":\"Master\""+
-									"}";
+//			String json =  "{'size.aaa': {$exists: false} }";
+			String json =  "{'size.aaa': {$exists: true} }";
+			Bson bson =  BasicDBObject.parse( json );
 			
-			Bson queryBson = BasicDBObject.parse(queryJson);
-			Document replaceDoc = Document.parse(updateJson);
-			
-			collection.replaceOne(queryBson,replaceDoc);
+			FindIterable<Document> iterDoc = collection.find(bson);
 
-			System.out.println("Document update successfully...");  
-
+			// Getting the iterator 
+			Iterator it = iterDoc.iterator(); 
+			Document doc;
+			while (it.hasNext()) { 
+				doc = (Document)it.next();
+				System.out.println(doc);
+			}
+			
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {
@@ -103,17 +102,17 @@ public class App5_replaceDocumentBson {
 	private static ServerListener serverListener = new ServerListener() {
 
 		public void serverOpening(ServerOpeningEvent event) {
-			//			System.out.println("*****************"+ event);
+//			System.out.println("*****************"+ event);
 
 		}
 
 		public void serverDescriptionChanged(ServerDescriptionChangedEvent event) {
-			//			System.out.println("++++++"+ event);
+//			System.out.println("++++++"+ event);
 
 		}
 
 		public void serverClosed(ServerClosedEvent event) {
-			//			System.out.println("----------------"+ event);
+//			System.out.println("----------------"+ event);
 		}
 	};
 

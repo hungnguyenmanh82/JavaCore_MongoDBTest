@@ -59,6 +59,7 @@ public class App3_insertJsonArray {
 			MongoCollection<Document> collection = database.getCollection("sampleCollection1");
 			
 			//MongoDB accepts single quote in Json (but single quote is not Json standard)
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			collection.insertMany(Arrays.asList(
 			        Document.parse("{ item: 'journal', qty: 25, size: { h: 14, w: 21, uom: 'cm' }, status: 'A' }"),
 			        Document.parse("{ item: 'notebook', qty: 50, size: { h: 8.5, w: 11, uom: 'in' }, status: 'A' }"),

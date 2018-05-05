@@ -1,7 +1,6 @@
-package hung.com.test.aggregateFunction;
+package hung.com.test.CRUD.find;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,6 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -36,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App8_Project {
+public class App46_findBson_ChildField {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -57,36 +55,33 @@ public class App8_Project {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
+			//create new collection if not find
+			MongoCollection<Document> collection = database.getCollection("sampleColChildField");
 			
-			// [] vòng lặp 
-			// {$project} : 1 Document trong Collection => duyệt tuần tự trong vòng lặp
-			// {_id:0}   :  0 nghía là ko hiển thị field “_id” trong json Document
-			// {item:1}  : 1 là hiển thị field “item” trong json Document
-			// 0 = false, 1 = true
-			// {field: <expression>} : expression là biểu thức true/false trả về là 0 or 1
-
-			String json = "{$project:{_id:0,title:1,likes:1}}";
+			collection.insertMany(Arrays.asList(
+			        Document.parse("{ item: 'journal', qty: 25, size: { h: 14, w: 21, uom: 'cm' }, status: 'A' }"),
+			        Document.parse("{ item: 'notebook', qty: 50, size: { h: 8.5, w: 11, aaa: 'in' }, status: 'A' }"),
+			        Document.parse("{ item: 'paper', qty: 100, size: { h: 8.5, w: 11, uom: 'in' }, status: 'D' }"),
+			        Document.parse("{ item: 'planner', qty: 75, size: { h: 22.85, w: 30, bbb: 'cm' }, status: 'D' }"),
+			        Document.parse("{ item: 'postcard', qty: 45, size: { h: 10, w: 15.25, uom: 'cm' }, status: 'A' }")
+			));
+			
+			// $or: operator OR
+			// $eq: equals
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+//			String json = "{size: {$eq: { h: 14, w: 21, uom: 'cm' } } }";
+//			String json = "{qty:25}";
+//			String json = "{item:'paper'}";
+			String json = "{'size.h':14}";
+			
+//			String json =  "{'size.aaa': {$exists: false} }";
+//			String json =  "{'size.aaa': {$exists: true} }";
 			Bson bson =  BasicDBObject.parse( json );
-
-			List<Bson> listBson = new ArrayList<Bson>();
-			listBson.add(bson);
 			
-			AggregateIterable<Document> output  = collection.aggregate(listBson);
+			FindIterable<Document> iterDoc = collection.find(bson);
 
 			// Getting the iterator 
-			Iterator it = output.iterator(); 
+			Iterator it = iterDoc.iterator(); 
 			Document doc;
 			while (it.hasNext()) { 
 				doc = (Document)it.next();

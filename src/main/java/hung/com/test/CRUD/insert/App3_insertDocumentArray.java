@@ -1,4 +1,4 @@
-package hung.com.test.CRUD.update;
+package hung.com.test.CRUD.insert;
 
 
 import java.util.Arrays;
@@ -6,9 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
@@ -17,8 +15,6 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -27,11 +23,17 @@ import com.mongodb.event.ServerOpeningEvent;
 /**
  * create an MongoDB user with root:
  * 
-		use Mydb
-		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
-
+	{
+		"_id":"5aeadf6432ff4031fcc89550",
+		"title":"MongoDB",
+		"id":1,
+		"description":"database",
+		"likes":120,
+		"url":"http://www.tutorialspoint.com/mongodb/",
+		"by":"tutorials point"
+	}
  */
-public class App5_replaceDocumentBson {
+public class App3_insertDocumentArray {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -52,43 +54,40 @@ public class App5_replaceDocumentBson {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 
 			//====================================================================
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			// $or: operator OR
-			// $eq: equals
-			// $lt: less than
-			
-			String queryJson = "{id:1}";
-			//
-			//$unset: remove field from Json
-			String updateJson = "{" +
-									"\"title\":\"Oracle\", "+
-									"\"id\":88,"+
-//									"\"description\":\"database\","+
-									"\"likes\":777,"+
-//									"\"url\":\"http://www.tuvi.com\","+
-									"\"by\":\"Master\""+
-									"}";
-			
-			Bson queryBson = BasicDBObject.parse(queryJson);
-			Document replaceDoc = Document.parse(updateJson);
-			
-			collection.replaceOne(queryBson,replaceDoc);
+			//create new collection if not find
+			MongoCollection<Document> collection = database.getCollection("sampleColArray");
+			//cách này cho performance tốt hơn là dùng Json
+			//1
+			Document journal = new Document("item", "journal")
+			        .append("qty", 25)
+			        .append("tags", Arrays.asList("blank", "red"));
 
-			System.out.println("Document update successfully...");  
+			Document journalSize = new Document("h", 14)
+			        .append("w", 21)
+			        .append("uom", "cm");
+			journal.append("size", journalSize); // https://stackoverflow.com/questions/6570088/mongodb-java-api-put-vs-append
+			
+			//2
+			Document mat = new Document("item", "mat")
+			        .append("qty", 85)
+			        .append("tags", Arrays.asList("gray"));
 
+			Document matSize = new Document("h", 27.9)
+			        .append("w", 35.5)
+			        .append("uom", "cm");
+			mat.put("size", matSize);  // // https://stackoverflow.com/questions/6570088/mongodb-java-api-put-vs-append
+			//3
+			Document mousePad = new Document("item", "mousePad")
+			        .append("qty", 25)
+			        .append("tags",  Arrays.asList("gel", "blue"));
+
+			Document mousePadSize = new Document("h", 19)
+			        .append("w", 22.85)
+			        .append("uom", "cm");
+			mousePad.put("size", mousePadSize); // // https://stackoverflow.com/questions/6570088/mongodb-java-api-put-vs-append
+
+			collection.insertMany( Arrays.asList(journal, mat, mousePad));
+			
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {

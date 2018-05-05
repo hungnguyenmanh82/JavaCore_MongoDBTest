@@ -1,28 +1,33 @@
-package hung.com.test.CRUD.update;
+package hung.com.test.aggregateFunction;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Updates;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
 import com.mongodb.event.ServerOpeningEvent;
+import com.mongodb.util.JSON;
 
 /**
  * create an MongoDB user with root:
@@ -31,7 +36,7 @@ import com.mongodb.event.ServerOpeningEvent;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App5_replaceDocumentBson {
+public class App8_SumBson {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -50,10 +55,9 @@ public class App5_replaceDocumentBson {
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
-
+			
 			//====================================================================
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			
 			/**
 			   {
 			     _id=5aeadf6432ff4031fcc89550, 
@@ -65,30 +69,34 @@ public class App5_replaceDocumentBson {
 			     by=tutorials point
 			   }
 			 */
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			// $or: operator OR
-			// $eq: equals
-			// $lt: less than
 			
-			String queryJson = "{id:1}";
-			//
-			//$unset: remove field from Json
-			String updateJson = "{" +
-									"\"title\":\"Oracle\", "+
-									"\"id\":88,"+
-//									"\"description\":\"database\","+
-									"\"likes\":777,"+
-//									"\"url\":\"http://www.tuvi.com\","+
-									"\"by\":\"Master\""+
-									"}";
-			
-			Bson queryBson = BasicDBObject.parse(queryJson);
-			Document replaceDoc = Document.parse(updateJson);
-			
-			collection.replaceOne(queryBson,replaceDoc);
+			//_id là trường bắt buộc để nhóm Group. _id = null nghĩa là tất cả 
+			// num_tutorial: là tên đại diện hiển thị ứng với Alias trong SQL
+			// $sum:  các toán tử function đếu kết thúc với dấu “:” và bắt đầu với $ => tuân theo Json
+			// $by_user  là field name trong Json Document. Cùng tên đc nhóm vào 1 Group  
+			// {$sum: 1} chính là hàm count mỗi lần +1 vào
+			// {$sum: “$money”}  tìm các field money và cộng lại với nhau.
+			//chú ý cú pháp đều tuân thủ Json rất chặt chẽ mặc dù có các function của MongoDB
 
-			System.out.println("Document update successfully...");  
 
+//			String json = "{$group:{_id:null, \"total likes\":{$sum:\"$likes\"}}}";
+//			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}}}";
+			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}, \"total id\":{$sum:\"$id\"} }}";
+			Bson bson =  BasicDBObject.parse( json );
+
+			List<Bson> listBson = new ArrayList<Bson>();
+			listBson.add(bson);
+			
+			AggregateIterable<Document> output  = collection.aggregate(listBson);
+
+			// Getting the iterator 
+			Iterator it = output.iterator(); 
+			Document doc;
+			while (it.hasNext()) { 
+				doc = (Document)it.next();
+				System.out.println(doc);
+			}
+			
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {
@@ -103,17 +111,17 @@ public class App5_replaceDocumentBson {
 	private static ServerListener serverListener = new ServerListener() {
 
 		public void serverOpening(ServerOpeningEvent event) {
-			//			System.out.println("*****************"+ event);
+//			System.out.println("*****************"+ event);
 
 		}
 
 		public void serverDescriptionChanged(ServerDescriptionChangedEvent event) {
-			//			System.out.println("++++++"+ event);
+//			System.out.println("++++++"+ event);
 
 		}
 
 		public void serverClosed(ServerClosedEvent event) {
-			//			System.out.println("----------------"+ event);
+//			System.out.println("----------------"+ event);
 		}
 	};
 

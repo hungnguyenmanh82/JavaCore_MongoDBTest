@@ -60,6 +60,7 @@ public class App3_insertJson {
 			
 			//Double quote is Json standard
 			//MongoDB accepts single quote in Json (but single quote is not Json standard)
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			String json = "{" +
 					"\"title\":\"MySQL\", "+
 					"\"id\":3,"+

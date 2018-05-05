@@ -68,7 +68,7 @@ public class App5_updateBson {
 			// $or: operator OR
 			// $eq: equals
 			// $lt: less than
-			
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			String queryJson = "{\"$or\": [ {\"title\": \"MongoDB\"}, {\"likes\": {\"$eq\": 140 }} ] }";
 			//
 //			String updateJson = "{$set: {\"by\": \"Hung gay\"} }";

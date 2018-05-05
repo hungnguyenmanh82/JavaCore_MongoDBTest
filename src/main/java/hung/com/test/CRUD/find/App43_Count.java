@@ -51,6 +51,7 @@ public class App43_Count {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			/**
 			   {

@@ -55,6 +55,7 @@ public class App3_insertDocuments {
 
 			//====================================================================
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
+			//cách này cho performance tốt hơn là dùng Json
 			Document document = new Document("title", "MongoDB") 
 					.append("id", 1)
 					.append("description", "database") 

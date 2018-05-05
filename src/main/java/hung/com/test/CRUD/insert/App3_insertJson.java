@@ -55,9 +55,11 @@ public class App3_insertJson {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			
-			
+			//Double quote is Json standard
+			//MongoDB accepts single quote in Json (but single quote is not Json standard)
 			String json = "{" +
 					"\"title\":\"MySQL\", "+
 					"\"id\":3,"+
@@ -66,6 +68,14 @@ public class App3_insertJson {
 					"\"url\":\"http://www.tuvi.com\","+
 					"\"by\":\"hungbeo\""+
 					"}";
+/*			String json = "{" +
+					"title:'MySQL', "+
+					"'id':3,"+
+					"'description':'database',"+
+					"'likes':140,"+
+					"'url':'http://www.tuvi.com',"+
+					"'by':'hungbeo'"+
+					"}";*/
 			Document doc = Document.parse(json);
 			collection.insertOne(doc);
 			

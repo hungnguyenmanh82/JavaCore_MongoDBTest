@@ -50,6 +50,7 @@ public class App42_keySet {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			/**
 			   {
@@ -75,7 +76,7 @@ public class App42_keySet {
 			while (it.hasNext()) { 
 				doc = (Document)it.next();
 				System.out.println(doc);
-				// list all keys in the Json of Document and show them
+				//================ list all keys in the Json of Document and show them
 				Set<String> setOfKey = doc.keySet();
 				for (String string : setOfKey) {
 					System.out.println(string);

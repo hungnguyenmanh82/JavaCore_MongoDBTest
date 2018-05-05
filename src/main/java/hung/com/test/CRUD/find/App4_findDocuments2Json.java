@@ -48,6 +48,7 @@ public class App4_findDocuments2Json {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			// Getting the iterable object 
 			FindIterable<Document> iterDoc = collection.find(); 

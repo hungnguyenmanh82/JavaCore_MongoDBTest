@@ -51,6 +51,7 @@ public class App4_findSort {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
+			//create new collection if not find
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");
 			/**
 			   {
@@ -66,6 +67,7 @@ public class App4_findSort {
 			// 1:  ascending
 			// -1: descending
 			String json = "{likes: 1}";
+//			String json = "{likes: 1,description:-1}";
 			Bson bson =  BasicDBObject.parse( json );
 			FindIterable<Document> iterDoc = collection.find().sort(bson);
 

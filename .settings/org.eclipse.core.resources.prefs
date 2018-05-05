@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
 encoding//src/main/java/hung/com/test/CRUD/find/App4_findRawQueryBson.java=UTF-8
+encoding//src/main/java/hung/com/test/CRUD/insert/App3_insertDocuments.java=UTF-8
+encoding//src/main/java/hung/com/test/CRUD/insert/App3_insertJsonArray.java=UTF-8
 encoding//src/main/java/hung/com/test/aggregateFunction/App8_Groupby.java=UTF-8
 encoding//src/main/java/hung/com/test/aggregateFunction/App8_Project.java=UTF-8
 encoding//src/main/java/hung/com/test/aggregateFunction/App8_SUM.java=UTF-8

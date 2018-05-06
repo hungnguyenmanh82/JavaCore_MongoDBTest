@@ -34,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App46_findBson_ChildFieldArray2 {
+public class App48_FieldArray_ShowElementMach {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -56,23 +56,50 @@ public class App46_findBson_ChildFieldArray2 {
 			
 			//====================================================================
 			//create new collection if not find
-			MongoCollection<Document> collection = database.getCollection("sampleColChildFieldArray");
+			MongoCollection<Document> collection = database.getCollection("ColArrayElementLimitOffset");
+			
+			String json1 = "{ article: 'xem Tử Vi', author: 'Hungbeo',"+ 
+							 "comments: ["+ 
+					                      "{user:'Thao',comment:'tuyet voi'},"+
+					                      "{user:'Lam',comment:'quite good'},"+
+					                      "{user:'HungPV',comment:'that is great'},"+
+					                      "{user:'CuongPt',comment:'fair enough'},"+
+					                      "{user:'HiepDD',comment:'not bad'},"+
+					                      "{user:'CongTH',comment:'beautiful'},"+
+							              "{user:'Thi',comment:'bullshit...'}"+
+					                   "]"+
+					       "}";
+			
+			String json2 = "{ article: 'xem Tử Vi', author: 'Boob',"+ 
+					 "comments: ["+ 
+			                      "{user:'Thao',comment:'what a jerk'},"+
+			                      "{user:'Lam',comment:'I hate it'},"+
+			                      "{user:'HungPV',comment:'a Boob'},"+
+			                      "{user:'CuongPt',comment:'fair enough'},"+
+			                      "{user:'HiepDD',comment:'not bad'},"+
+			                      "{user:'CongTH',comment:'beautiful'},"+
+					              "{user:'Thi',comment:'bullshit...'}"+
+			                   "]"+
+			       "}";
 			
 			collection.insertMany(Arrays.asList(
-			        Document.parse("{country: 'Vietnam', cities: [{name: 'Hanoi', code: 111}, {name: 'Hai Phong'},{name: null,code: 000}]}"),
-			        Document.parse("{country: 'Thailand', cities: [{name: 'ChiengMai', code: 111}, {name: 'Bang Coc'},{code: 000}]}")
+			        Document.parse(json1),
+			        Document.parse(json2)
 			));
 			
 			// $or: operator OR
 			// $eq: equals
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.		
+			String jsonFind = "{author:'Hungbeo'}";
+			Bson bsonFind =  BasicDBObject.parse( jsonFind );
+			
+			//====================================== $Project
+			// {$slice:[2,3]: offset (skip) = 2, Limit = 3
+			String jsonProject = "{comments:{$elemMatch:{user:'Thao'}} }";
 
-			String json = "{'cities.name':'Hanoi'}"; //show child field
-//			String json = "{'cities.name': null}";
+			Bson bsonProject =  BasicDBObject.parse( jsonProject );
 			
-			Bson bson =  BasicDBObject.parse( json );
-			
-			FindIterable<Document> iterDoc = collection.find(bson);
+			FindIterable<Document> iterDoc = collection.find(bsonFind).projection(bsonProject);
 
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 

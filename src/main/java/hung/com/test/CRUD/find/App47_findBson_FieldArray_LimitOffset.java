@@ -34,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App45_findBsonShowSomeFields {
+public class App47_findBson_FieldArray_LimitOffset {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -56,31 +56,53 @@ public class App45_findBsonShowSomeFields {
 			
 			//====================================================================
 			//create new collection if not find
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
+			MongoCollection<Document> collection = database.getCollection("ColArrayElementLimitOffset");
+			
+			String json1 = "{ article: 'xem Tử Vi', author: 'Hungbeo',"+ 
+							 "comments: ["+ 
+					                      "{user:'Thao',comment:'tuyet voi'},"+
+					                      "{user:'Lam',comment:'quite good'},"+
+					                      "{user:'HungPV',comment:'that is great'},"+
+					                      "{user:'CuongPt',comment:'fair enough'},"+
+					                      "{user:'HiepDD',comment:'not bad'},"+
+					                      "{user:'CongTH',comment:'beautiful'},"+
+							              "{user:'Thi',comment:'bullshit...'}"+
+					                   "]"+
+					       "}";
+			
+			String json2 = "{ article: 'xem Tử Vi', author: 'Boob',"+ 
+					 "comments: ["+ 
+			                      "{user:'Thao',comment:'what a jerk'},"+
+			                      "{user:'Lam',comment:'I hate it'},"+
+			                      "{user:'HungPV',comment:'a Boob'},"+
+			                      "{user:'CuongPt',comment:'fair enough'},"+
+			                      "{user:'HiepDD',comment:'not bad'},"+
+			                      "{user:'CongTH',comment:'beautiful'},"+
+					              "{user:'Thi',comment:'bullshit...'}"+
+			                   "]"+
+			       "}";
+			
+			collection.insertMany(Arrays.asList(
+			        Document.parse(json1),
+			        Document.parse(json2)
+			));
 			
 			// $or: operator OR
 			// $eq: equals
 			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			String json = "{$or: [ {title: 'MongoDB'}, {likes: {$eq: 110 }} ] }";
+
+			
+			String json = "{author:'Hungbeo'}";
 			Bson bson =  BasicDBObject.parse( json );
 			
-			//$project
-			String jsonShow = "{_id:0,title:1, likes:1}";
-			Bson bsonShow =  BasicDBObject.parse( jsonShow );
+			// $Project
+			// {$slice:[2,3]: offset (skip) = 2, Limit = 3
+			String jsonProject = "{comments:{$slice:[2,3]} }";
+//			String jsonProject = "{comments:{$slice:3} }";           //show the first 3 items (positive means the fist )
+//			String jsonProject = "{comments:{$slice:-3} }";          //show the last 3 items. (negative means the last)
+			Bson bsonProject =  BasicDBObject.parse( jsonProject );
 			
-			//xem $project
-			FindIterable<Document> iterDoc = collection.find(bson).projection(bsonShow);
+			FindIterable<Document> iterDoc = collection.find(bson).projection(bsonProject);
 
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 

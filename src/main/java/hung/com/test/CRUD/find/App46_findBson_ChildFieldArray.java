@@ -34,7 +34,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App45_findBsonShowSomeFields {
+public class App46_findBson_ChildFieldArray {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -56,31 +56,24 @@ public class App45_findBsonShowSomeFields {
 			
 			//====================================================================
 			//create new collection if not find
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
+			MongoCollection<Document> collection = database.getCollection("sampleColChildFieldArray");
+			
+			collection.insertMany(Arrays.asList(
+			        Document.parse("{country: 'Vietnam', cities: [{name: 'Hanoi', code: 111}, {name: 'Hai Phong'},{name: null,code: 000}]}"),
+			        Document.parse("{country: 'Thailand', cities: [{name: 'ChiengMai', code: 111}, {name: 'Bang Coc'},{code: 000}]}")
+			));
 			
 			// $or: operator OR
 			// $eq: equals
 			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			String json = "{$or: [ {title: 'MongoDB'}, {likes: {$eq: 110 }} ] }";
+
+			String json = "{'cities.name':'Hanoi'}";    // show child field
+
+//			String json = "{'cities.name': null}";
+			
 			Bson bson =  BasicDBObject.parse( json );
 			
-			//$project
-			String jsonShow = "{_id:0,title:1, likes:1}";
-			Bson bsonShow =  BasicDBObject.parse( jsonShow );
-			
-			//xem $project
-			FindIterable<Document> iterDoc = collection.find(bson).projection(bsonShow);
+			FindIterable<Document> iterDoc = collection.find(bson);
 
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 

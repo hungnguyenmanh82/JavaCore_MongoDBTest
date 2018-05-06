@@ -1,4 +1,4 @@
-package hung.com.test.CRUD.find;
+package hung.com.test.index;
 
 
 import java.util.Arrays;
@@ -21,6 +21,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -34,7 +35,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App45_findBsonShowSomeFields {
+public class App72_indexBson_FieldArray2 {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -53,43 +54,61 @@ public class App45_findBsonShowSomeFields {
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
-			
+
 			//====================================================================
 			//create new collection if not find
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
-			
-			// $or: operator OR
-			// $eq: equals
-			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
-			String json = "{$or: [ {title: 'MongoDB'}, {likes: {$eq: 110 }} ] }";
-			Bson bson =  BasicDBObject.parse( json );
-			
-			//$project
-			String jsonShow = "{_id:0,title:1, likes:1}";
-			Bson bsonShow =  BasicDBObject.parse( jsonShow );
-			
-			//xem $project
-			FindIterable<Document> iterDoc = collection.find(bson).projection(bsonShow);
+			MongoCollection<Document> collection = database.getCollection("sampleColFieldArray");
 
-			// Getting the iterator 
+			String json1 = "{ article: 'xem Tử Vi', author: 'Hungbeo',"+ 
+					"comments: ["+ 
+									"{user:'Thao',comment:'tuyet voi'},"+
+									"{user:'Lam',comment:'quite good'},"+
+									"{user:'HungPV',comment:'that is great'},"+
+									"{user:'CuongPt',comment:'fair enough'},"+
+									"{user:'HiepDD',comment:'not bad'},"+
+									"{user:'CongTH',comment:'beautiful'},"+
+									"{user:'Thi',comment:'bullshit...'}"+
+							   "]"+
+					        "}";
+
+			String json2 = "{ article: 'xem Tử Vi', author: 'Boob',"+ 
+					"comments: ["+ 
+									"{user:'Thao',comment:'what a jerk'},"+
+									"{user:'Lam',comment:'I hate it'},"+
+									"{user:'HungPV',comment:'a Boob'},"+
+									"{user:'CuongPt',comment:'fair enough'},"+
+									"{user:'HiepDD',comment:'not bad'},"+
+									"{user:'CongTH',comment:'beautiful'},"+
+									"{user:'Thi',comment:'bullshit...'}"+
+								"]"+
+					        "}";
+
+			collection.insertMany(Arrays.asList(
+										Document.parse(json1),
+										Document.parse(json2)
+										));
+
+			//====================== Index Array ====================
+			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
+			//1: ascending
+			//-1: descending
+			String json = "{'comments.user':1}";
+
+			Bson bson =  BasicDBObject.parse( json );
+			collection.createIndex(bson);
+
+			//======================= find ============================
+			String jsonFind = "{'comments.user':'Thao'}";
+			Bson bsonFind =  BasicDBObject.parse( jsonFind );
+
+			FindIterable<Document> iterDoc = collection.find(bsonFind);
 			Iterator it = iterDoc.iterator(); 
 			Document doc;
 			while (it.hasNext()) { 
 				doc = (Document)it.next();
 				System.out.println(doc);
 			}
-			
+
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {
@@ -104,17 +123,17 @@ public class App45_findBsonShowSomeFields {
 	private static ServerListener serverListener = new ServerListener() {
 
 		public void serverOpening(ServerOpeningEvent event) {
-//			System.out.println("*****************"+ event);
+			//			System.out.println("*****************"+ event);
 
 		}
 
 		public void serverDescriptionChanged(ServerDescriptionChangedEvent event) {
-//			System.out.println("++++++"+ event);
+			//			System.out.println("++++++"+ event);
 
 		}
 
 		public void serverClosed(ServerClosedEvent event) {
-//			System.out.println("----------------"+ event);
+			//			System.out.println("----------------"+ event);
 		}
 	};
 

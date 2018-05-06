@@ -36,7 +36,7 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App8_SumBson {
+public class App8_Match_find {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -57,37 +57,26 @@ public class App8_SumBson {
 			MongoDatabase database = mongo.getDatabase("Mydb"); 
 			
 			//====================================================================
-			MongoCollection<Document> collection = database.getCollection("sampleCollection");
-			/**
-			   {
-			     _id=5aeadf6432ff4031fcc89550, 
-			     title=MongoDB, 
-			     id=1, 
-			     description=database, 
-			     likes=100, 
-			     url=http://www.tutorialspoint.com/mongodb/, 
-			     by=tutorials point
-			   }
-			 */
+			//create new collection if not find
+			// https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/
+			MongoCollection<Document> collectionOrder = database.getCollection("orders1");
 			
-			//_id là trường bắt buộc để nhóm Group. _id = null nghĩa là tất cả 
-			// num_tutorial: là tên đại diện hiển thị ứng với Alias trong SQL
-			// $sum:  các toán tử function đếu kết thúc với dấu “:” và bắt đầu với $ => tuân theo Json
-			// $by_user  là field name trong Json Document. Cùng tên đc nhóm vào 1 Group  
-			// {$sum: 1} chính là hàm count mỗi lần +1 vào
-			// {$sum: “$money”}  tìm các field money và cộng lại với nhau.
-			//chú ý cú pháp đều tuân thủ Json rất chặt chẽ mặc dù có các function của MongoDB
+			collectionOrder.insertMany(Arrays.asList(
+			        Document.parse("{ '_id' : 1, 'item' : 'almonds', 'price' : 12, 'quantity' : 2 }"),
+			        Document.parse("{ '_id' : 2, 'item' : 'pecans', 'price' : 20, 'quantity' : 1 }"),
+			        Document.parse("{ '_id' : 3}")
+			));
 
-
-//			String json = "{$group:{_id:null, \"total likes\":{$sum:\"$likes\"}}}";    //all items of search (no group)
-//			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}}}";
-			String json = "{$group:{_id:\"$title\", \"total likes\":{$sum:\"$likes\"}, \"total id\":{$sum:\"$id\"} }}";
-			Bson bson =  BasicDBObject.parse( json );
-
+			
+			//== find
+			String jsonFind = "{$match:{'_id':1}}";
+			Bson bsonFind =  BasicDBObject.parse( jsonFind );	
+			
 			List<Bson> listBson = new ArrayList<Bson>();
-			listBson.add(bson);
+			listBson.add(bsonFind);
+
 			
-			AggregateIterable<Document> output  = collection.aggregate(listBson);
+			AggregateIterable<Document> output  = collectionOrder.aggregate(listBson);
 
 			// Getting the iterator 
 			Iterator it = output.iterator(); 
@@ -96,6 +85,7 @@ public class App8_SumBson {
 				doc = (Document)it.next();
 				System.out.println(doc);
 			}
+			
 			
 			//====================================================================
 			mongo.close();

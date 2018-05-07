@@ -92,10 +92,10 @@ public class App72_indexBson_FieldArray2 {
 			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			//1: ascending
 			//-1: descending
-			String json = "{'comments.user':1}";
+			String jsonIndex = "{'comments.user':1}";
 
-			Bson bson =  BasicDBObject.parse( json );
-			collection.createIndex(bson);
+			Bson bsonIndex =  BasicDBObject.parse( jsonIndex );
+			collection.createIndex(bsonIndex);
 
 			//======================= find ============================
 			String jsonFind = "{'comments.user':'Thao'}";

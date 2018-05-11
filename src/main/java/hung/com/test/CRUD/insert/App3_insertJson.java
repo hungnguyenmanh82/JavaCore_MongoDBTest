@@ -62,12 +62,12 @@ public class App3_insertJson {
 			//MongoDB accepts single quote in Json (but single quote is not Json standard)
 			//dùng cú pháp json hay hơn dùng thư viện java. Vì nó cho phép dùng với Java, PHP, NodeJs,Shell command... đều ok.
 			String json = "{" +
-					"\"title\":\"MySQL\", "+
-					"\"id\":3,"+
-					"\"description\":\"database\","+
-					"\"likes\":140,"+
-					"\"url\":\"http://www.tuvi.com\","+
-					"\"by\":\"hungbeo\""+
+					"'title':'MySQL', "+
+					"'id':3,"+
+					"'description':'database',"+
+					"'likes':140,"+
+					"'url':'http://www.tuvi.com',"+
+					"'by':'hungbeo'"+
 					"}";
 /*			String json = "{" +
 					"title:'MySQL', "+

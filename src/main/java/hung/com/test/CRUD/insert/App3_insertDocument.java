@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -63,8 +64,13 @@ public class App3_insertDocument {
 					.append("likes", 100) 
 					.append("url", "http://www.tutorialspoint.com/mongodb/") 
 					.append("by", "tutorials point");  
-			collection.insertOne(document); 
+			collection.insertOne(document);
 			
+			//ObjectId đc gen ở Client tự động khi tạo 1 document nếu ta ko chủ động thêm vào(ko phải trên MongoDB server)
+			ObjectId id = (ObjectId)document.get( "_id" );
+			System.out.println(document.get("_id"));
+			//cách 2:
+//			document.append("_id", new ObjectId());
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {

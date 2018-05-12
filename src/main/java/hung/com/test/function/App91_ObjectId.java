@@ -1,4 +1,4 @@
-package hung.com.test.join2Collection;
+package hung.com.test.function;
 
 
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bson.BsonDocument;
+import org.bson.BsonJavaScript;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
@@ -23,6 +24,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -36,14 +38,15 @@ import com.mongodb.util.JSON;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App9_join2Collections {
+public class App91_ObjectId {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
-	//
-	private static final String user = "MydbUser";
+	//phải dùng quyền admin thì mới tạo đc function
+	private static final String user = "admin";
 	private static final String password = "123";
-	private static final String databaseName = "Mydb";
+	private static final String databaseName = "admin";
+
 
 	public static void main(String[] args) {
 		// http://mongodb.github.io/mongo-java-driver/3.4/driver/tutorials/authentication/ 
@@ -54,56 +57,28 @@ public class App9_join2Collections {
 					.addServerListener(serverListener)
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
-			MongoDatabase database = mongo.getDatabase("Mydb"); 
+			MongoDatabase database = mongo.getDatabase(databaseName); 
+			//==========================================create Function and save in database
+			BsonDocument echoFunction = new BsonDocument("value",
+			        new BsonJavaScript("function() { return ObjectId().str}"));
+
 			
+			// "system.js" là collection của MongoDB chứa javascript
+			database.getCollection("system.js").updateOne(
+			        new Document("_id", "echoFunction"),
+			        new Document("$set", echoFunction),
+			        new UpdateOptions().upsert(true));  //nếu ko có thì insert
+		
+
 			//====================================================================
 			//create new collection if not find
-			// https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/
-			MongoCollection<Document> collectionOrder = database.getCollection("orders");
+			database.runCommand(new Document("$eval", "db.loadServerScripts()"));
+			Document returnDoc1 =  database.runCommand(new Document("$eval", "echoFunction()"));		
+			System.out.println("---------------------------------");
+			System.out.println(returnDoc1);  //lưu ý  key = "retval"
+			System.out.println("echoFunction(9) = " + returnDoc1.get("retval"));
 			
-			collectionOrder.insertMany(Arrays.asList(
-			        Document.parse("{ '_id' : 1, 'item' : 'almonds', 'price' : 12, 'quantity' : 2 }"),
-			        Document.parse("{ '_id' : 2, 'item' : 'pecans', 'price' : 20, 'quantity' : 1 }"),
-			        Document.parse("{ '_id' : 3}")
-			));
-			//
-			MongoCollection<Document> collectionInventory = database.getCollection("inventory");
-			
-			collectionInventory.insertMany(Arrays.asList(
-			        Document.parse("{ '_id' : 1, 'sku' : 'almonds', description: 'product 1', 'instock' : 120 }"),
-			        Document.parse("{ '_id' : 2, 'sku' : 'bread', description: 'product 2', 'instock' : 80 }"),
-			        Document.parse("{ '_id' : 3, 'sku' : 'cashews', description: 'product 3', 'instock' : 60 }"),
-			        Document.parse("{ '_id' : 4, 'sku' : 'pecans', description: 'product 4', 'instock' : 70 }"),
-			        Document.parse("{ '_id' : 5, 'sku': null, description: 'Incomplete' }"),
-			        Document.parse("{ '_id' : 6 }")
-			));
-			
-			//============================ find (or $match with Aggregation fucntion ============
-			String jsonFind = "{$match:{'_id':1}}";
-			Bson bsonFind =  BasicDBObject.parse( jsonFind );
-			
-			//=========================== $lookup =================================		
-			String jsonLookup = "{ $lookup: {"+
-				                              "from: 'inventory'," +
-				                              "localField: 'item'," +
-				                              "foreignField: 'sku'," + 
-				                              "as: 'inventory_docs'	} } ";
-			Bson bsonLookup =  BasicDBObject.parse( jsonLookup );
-			
-			List<Bson> listBson = new ArrayList<Bson>();
-			listBson.add(bsonFind);    //filter first
-			listBson.add(bsonLookup);  // filter second
-			
-			AggregateIterable<Document> output  = collectionOrder.aggregate(listBson);
 
-			// Getting the iterator 
-			Iterator it = output.iterator(); 
-			Document doc;
-			while (it.hasNext()) { 
-				doc = (Document)it.next();
-				System.out.println(doc);
-			}
-			
 			
 			//====================================================================
 			mongo.close();

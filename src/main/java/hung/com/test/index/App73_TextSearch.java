@@ -72,14 +72,15 @@ public class App73_TextSearch {
 			));
 			
 			//======================= create index 
+			//nó sẽ phân giã 'content' thành các token cách nhau bởi whitespace và index các token.
 			String jsonIndex = "{content:'text'}";   //create $text search in MongoDB
 			Bson bsonIndex =  BasicDBObject.parse( jsonIndex );
 			collection.createIndex(bsonIndex);
 			
 			
 			//======================= find
-			String jsonFind = "{$text : {$search : 'tutorial'}}";
-//			String jsonFind = "{$text : {$search : 'tutor'}}";
+			String jsonFind = "{$text : {$search : 'tutorial'}}";  //tìm đc
+//			String jsonFind = "{$text : {$search : 'tutor'}}";  //không tìm đc, vì ko có token nào giống nó
 			Bson bsonFind =  BasicDBObject.parse( jsonFind );	
 			
 			FindIterable<Document> iterDoc = collection.find(bsonFind);

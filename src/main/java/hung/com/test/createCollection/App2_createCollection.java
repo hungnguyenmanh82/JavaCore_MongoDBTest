@@ -44,7 +44,7 @@ public class App2_createCollection {
 											.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			
-			MongoDatabase database = mongo.getDatabase("Mydb"); 
+			MongoDatabase database = mongo.getDatabase(databaseName); 
 			database.createCollection("sampleCollection"); 
 			
 			mongo.close();

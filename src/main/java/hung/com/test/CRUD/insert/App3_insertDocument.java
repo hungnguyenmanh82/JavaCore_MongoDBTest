@@ -51,7 +51,7 @@ public class App3_insertDocument {
 					.addServerListener(serverListener)
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
-			MongoDatabase database = mongo.getDatabase("Mydb"); 
+			MongoDatabase database = mongo.getDatabase(databaseName); 
 
 			//====================================================================
 			//create new collection if not find

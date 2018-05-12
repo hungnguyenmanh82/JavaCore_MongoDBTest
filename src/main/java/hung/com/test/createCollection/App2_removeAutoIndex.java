@@ -49,7 +49,7 @@ public class App2_removeAutoIndex {
 											.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			
-			MongoDatabase database = mongo.getDatabase("Mydb");
+			MongoDatabase database = mongo.getDatabase(databaseName);
 			
 			//===========================================================================
 			CreateCollectionOptions collectionOptions = new CreateCollectionOptions();
@@ -70,7 +70,11 @@ public class App2_removeAutoIndex {
 				e.printStackTrace();
 			}
 			
-			//
+			/**
+			Trường id trên MongoDB luôn lấy tên là “_id”. 
+			Khi thiết lập autoIndexId= false thì phải lấy tên “_id” để đặt cho 1 trường nào đó. 
+			Nếu ko, MongoDB sẽ tự động thiết lập trường này.
+			 */
 			Document document = new Document("title", "MongoDB") 
 					.append("_id", 1)
 					.append("item", "abc") 

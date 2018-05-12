@@ -47,7 +47,7 @@ public class App4_findAll {
 					.addServerListener(serverListener)
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
-			MongoDatabase database = mongo.getDatabase("Mydb"); 
+			MongoDatabase database = mongo.getDatabase(databaseName); 
 			
 			//====================================================================
 			//create new collection if not find
@@ -74,11 +74,13 @@ public class App4_findAll {
 			// Getting the iterator 
 			Iterator it = iterDoc.iterator(); 
 			Document doc;
+			String json;
+			
 			while (it.hasNext()) { 
 				doc = (Document)it.next();
 				System.out.println(doc);
-
-				
+				json = doc.toJson();
+				System.out.println(json);
 			}
 			
 			//====================================================================

@@ -49,7 +49,7 @@ public class App5_removeFieldsBson {
 					.addServerListener(serverListener)
 					.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
-			MongoDatabase database = mongo.getDatabase("Mydb"); 
+			MongoDatabase database = mongo.getDatabase(databaseName); 
 
 			//====================================================================
 			MongoCollection<Document> collection = database.getCollection("sampleCollection");

@@ -78,8 +78,6 @@ public class App91_ObjectId {
 			System.out.println(returnDoc1);  //lưu ý  key = "retval"
 			System.out.println("echoFunction(9) = " + returnDoc1.get("retval"));
 			
-
-			
 			//====================================================================
 			mongo.close();
 		} catch (MongoException  e) {

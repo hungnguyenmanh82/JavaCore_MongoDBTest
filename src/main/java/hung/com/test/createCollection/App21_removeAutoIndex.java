@@ -1,10 +1,14 @@
 package hung.com.test.createCollection;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.codecs.DateCodec;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -13,6 +17,7 @@ import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.event.ServerClosedEvent;
 import com.mongodb.event.ServerDescriptionChangedEvent;
 import com.mongodb.event.ServerListener;
@@ -25,7 +30,7 @@ import com.mongodb.event.ServerOpeningEvent;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App2_createCollection {
+public class App21_removeAutoIndex {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -44,8 +49,44 @@ public class App2_createCollection {
 											.build();
 			MongoClient mongo = new MongoClient(new ServerAddress(address,port),credential, options); 
 			
-			MongoDatabase database = mongo.getDatabase(databaseName); 
-			database.createCollection("sampleCollection"); // default là autoindex ở server "_Id" sẽ tạo ở server.
+			MongoDatabase database = mongo.getDatabase(databaseName);
+			
+			//===========================================================================
+			CreateCollectionOptions collectionOptions = new CreateCollectionOptions();
+			collectionOptions.autoIndex(false);  // ko auto index với "_id" ở server => user phải insert vào
+//			collectionOptions.capped(true);
+			
+			String collectionName = "MyCollection2";
+			database.getCollection(collectionName).drop();  //xóa bỏ collection cũ nếu tồn tại
+			database.createCollection(collectionName,collectionOptions); // tạo collection mới
+			//========================================================================
+			MongoCollection<Document> collection = database.getCollection(collectionName);
+			
+			String stDate = "2018-04-22 12:30:45.333";  //333 millisecond
+			java.util.Date javaDate = null;
+			
+			try {
+				 javaDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").parse(stDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			
+			/**
+			Trường id trên MongoDB luôn lấy tên là “_id”. 
+			Khi thiết lập autoIndexId= false thì phải lấy tên “_id” để đặt cho 1 trường nào đó. 
+			Nếu ko, MongoDB sẽ tự động thiết lập trường này.
+			 */
+			Document document = new Document("title", "MongoDB") 
+					.append("_id", 1)
+					.append("item", "abc") 
+					.append("price", 100) 
+					.append("quantity", 3) 
+					.append("date", javaDate);  
+			collection.insertOne(document); 
+			
+			//auto gen id in client
+
+			
 			
 			mongo.close();
 		} catch (MongoException  e) {

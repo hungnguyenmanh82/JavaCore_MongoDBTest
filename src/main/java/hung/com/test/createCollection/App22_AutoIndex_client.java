@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.bson.Document;
 import org.bson.codecs.DateCodec;
+import org.bson.types.ObjectId;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -30,7 +31,7 @@ import com.mongodb.event.ServerOpeningEvent;
 		db.createUser({user:"MydbUser",pwd:"123",roles:[{role:"readWrite",db:"Mydb"}]})
 
  */
-public class App2_removeAutoIndex {
+public class App22_AutoIndex_client {
 
 	private static final String address = "localhost";
 	private static final int port = 27017;
@@ -53,13 +54,14 @@ public class App2_removeAutoIndex {
 			
 			//===========================================================================
 			CreateCollectionOptions collectionOptions = new CreateCollectionOptions();
-			collectionOptions.autoIndex(false);
+			collectionOptions.autoIndex(false);  // ko auto index với "_id" ở server => user phải insert vào
 //			collectionOptions.capped(true);
 			
-			database.getCollection("myCollection").drop();
-			database.createCollection("myCollection",collectionOptions); 
+			String collectionName = "MyCollection2";
+			database.getCollection(collectionName).drop();  //xóa bỏ collection cũ nếu tồn tại
+			database.createCollection(collectionName,collectionOptions); // tạo collection mới
 			//========================================================================
-			MongoCollection<Document> collection = database.getCollection("myCollection");
+			MongoCollection<Document> collection = database.getCollection(collectionName);
 			
 			String stDate = "2018-04-22 12:30:45.333";  //333 millisecond
 			java.util.Date javaDate = null;
@@ -70,22 +72,22 @@ public class App2_removeAutoIndex {
 				e.printStackTrace();
 			}
 			
+			//============================ auto gen id in client
 			/**
 			Trường id trên MongoDB luôn lấy tên là “_id”. 
 			Khi thiết lập autoIndexId= false thì phải lấy tên “_id” để đặt cho 1 trường nào đó. 
 			Nếu ko, MongoDB sẽ tự động thiết lập trường này.
 			 */
 			Document document = new Document("title", "MongoDB") 
-					.append("_id", 1)
+					.append("_id", new ObjectId())   //auto gen _id ở Client
 					.append("item", "abc") 
 					.append("price", 100) 
 					.append("quantity", 3) 
 					.append("date", javaDate);  
 			collection.insertOne(document); 
-			//
-
-
 			
+			
+
 			
 			
 			mongo.close();
